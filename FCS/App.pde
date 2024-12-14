@@ -11,6 +11,11 @@ void hideAllButton() {
   showAnswerButton3.hide();
   modeAdventureButton.hide();
   completeAdventureButton.hide();
+  f1ButtonHome.hide();
+  f2ButtonHome.hide();
+  f3ButtonHome.hide();
+  f4ButtonHome.hide();
+  f5ButtonHome.hide();
   score=0;
 }
 void rule() {
@@ -132,4 +137,19 @@ void sc_sceneAdventure_picture(){//scはscenechangeの略
 void sc_sceneQR(){
   completeAdventureButton.hide();
   scene = 9;
+}
+void f1(){
+  floor = 1;
+}
+void f2(){
+  floor = 2;
+}
+void f3(){
+  floor = 3;
+}
+void f4(){
+  floor = 4;
+}
+void f5(){
+  floor = 5;
 }
