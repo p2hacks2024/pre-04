@@ -1,5 +1,5 @@
 void titleBGM() {
-  bgm = minim.loadFile("sound/projectX.mp3");
+  bgm = minim.loadFile("title.mp3");
   bgm.play();
 }
 void selectLevelBGM() {
@@ -15,11 +15,11 @@ void backSE() {
   se.play();
 }
 void pictureChangeSE() {
-  se = minim.loadFile("sound/changePicture.mp3");
+  se = minim.loadFile("カメラアプリ.mp3");
   se.play();
 }
 void pushSE() {
-  se = minim.loadFile("sound/爆発.mp3");
+  se = minim.loadFile("sound/push.mp3");
   se.play();
 }
 void choiceFloorSE() {
@@ -40,5 +40,21 @@ void ChoiceFloorDeleteSE(){
 }
 void ChoiceFloorJudgeSE(){
   se = minim.loadFile("sound/ヒット.mp3");
+  se.play();
+}
+void countDownSE(){
+  se = minim.loadFile("sound/タイプライター.mp3");
+  se.play();
+}
+void countZeroSE(){
+  se = minim.loadFile("sound/決定.mp3");
+  se.play();
+}
+void doramrollSE(){
+  se = minim.loadFile("sound/ドラムロール.mp3");
+  se.play();
+}
+void enddoramrollSE(){
+  se = minim.loadFile("sound/ロールの締め.mp3");
   se.play();
 }

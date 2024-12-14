@@ -15,22 +15,13 @@ int loadingStartTime;
 boolean showLoading = false;
 String fileName[];
 
-void drawLoadingAnimation() {
-  background(255);
-  fill(0);
-  //text("Now Loading", width / 2, height / 2 - 50);
-  image(gif, 512, 232);
-
-  pushMatrix();
-  popMatrix();
-}
-
 void loadImage() {
-  isLoading=true;
-  displayFin=false;
+  println("loadImage");
+  displayFin = false;
 
   File folder = new File(dataPath(levelOption));
   imageFiles = folder.list((dir, name) -> name.toLowerCase().endsWith(".jpg"));
+
   if (imageFiles == null || imageFiles.length == 0) {
     println("フォルダに画像がないよう: " + levelOption);
     isLoading = false;
@@ -39,8 +30,12 @@ void loadImage() {
 
   ArrayList<String> selectedFiles = new ArrayList<String>();
   for (String file : imageFiles) {
-    selectedFiles.add(file);
+    String fileNamePrefix = fiveSelect(file);
+    if (fileNamePrefix != null) {
+      selectedFiles.add(fileNamePrefix + ".jpg");
+    }
   }
+
   questionImage = new PImage[MAX_SIZE];
   for (int i = 0; i < MAX_SIZE; i++) {
     int randomIndex = int(random(selectedFiles.size()));//selectedFiles(arrayList)の要素数までのランダムな数字
@@ -50,19 +45,28 @@ void loadImage() {
     questionImage[i] = loadImage(levelOption + "/" + fileName[i]);
     println("よみこみ: " + fileName[i]);
   }
-
-  isLoading = false;
-  changeTime=millis();
+  changeTime = millis();
 }
 
+String fiveSelect(String fileName) {
+  String match = fileName.replaceAll("^\\D*(\\d{5}).*", "$1");
+  return match.length() == 5 ? match : null;
+}
+
+boolean gifStarted = false;
+int gifStartTime = 0;
+int gifDuration = 3000;
+
 void drawQuestion() {
-  background(255);
+  //background(255);
+  image(mapBGImage, 0, 0, width, height);
   if (soundFlag == true) {
     pictureChangeSE();
     println("test");
     soundFlag = false;
   }
   if (millis() - changeTime > interval) {
+
     nowImage++;
     changeTime = millis();
 
@@ -76,6 +80,19 @@ void drawQuestion() {
   }
 
   if (nowImage < MAX_SIZE && questionImage[nowImage] != null) {
-    image(questionImage[nowImage], (width-960)/2, 0, 960, height);
+    fill(255);
+    rect((width-960)/2+20, 40, 930, height-80);
+    image(questionImage[nowImage], (width-960)/2+30, 50, 910, height-100);
+    if (nowImage==MAX_SIZE) {
+      sceneChange=true;
+    }
+  }
+
+  if (sceneChange==true) {
+    frameRate(10);
+    image(questionImage[MAX_SIZE], (width-960)/2, 0, 960, height);
+    image(fun1, 0, 0);
+    sceneChange=false;
+    frameRate(60);
   }
 }

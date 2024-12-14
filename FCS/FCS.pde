@@ -30,7 +30,7 @@ ControlP5 showAnswerButton3;
 
 ControlP5 modeAdventureButton;
 ControlP5 completeAdventureButton;
-
+ControlP5 finishAdventureButton;
 
 ControlP5 f1ButtonHome;
 ControlP5 f2ButtonHome;
@@ -40,6 +40,8 @@ ControlP5 f5ButtonHome;
 
 Gif gif;
 Gif titleGif;
+Gif fun1;
+Gif fun2;
 
 PFont font;
 PFont font40;
@@ -64,13 +66,17 @@ PImage ruleImage;
 PImage selectImage;
 PImage logoImage1;
 PImage logoImage2;
-
+PImage resultImage;
+PImage bg_oldpaper;//宝の地図の紙っぽい画像 bgはbackgroundの略
 PImage qr;//アップロードページに飛ぶようのqrコード
 
 PImage okImage;
 PImage noImage;
 PImage OkokImage;
 PImage NonoImage;
+PImage mapBGImage;
+PImage akimoto;
+PImage kari;
 
 int titleFontSize = 70;
 int subTitle = 40;
@@ -80,9 +86,9 @@ int level = 1;
 //mapのグローバル変数，以下かとう
 ArrayList<Integer> answerId = new ArrayList<Integer>();//【重要】正誤判定に用いる。ユーザーが選択した場所を格納
 int count=0;
-int floorSize=60;//マス目の長さ
-int centerX=400;//マップの左上を定める（Ｘ軸）
-int centerY=50;//マップの左上を定める（Ｙ軸）
+int floorSize=55;//マス目の長さ
+int centerX=420;//マップの左上を定める（Ｘ軸）
+int centerY=100;//マップの左上を定める（Ｙ軸）
 int lineWidth=1;//マップの線の太さ
 int lineWidthOutside=3;//マップの線の外枠の太さ
 int col=130;//マップのデフォルトの色
@@ -96,8 +102,10 @@ boolean stableFill=false;
 int kariX, kariY;//クリック時に色を表示する位置
 int[][][] clickCount;
 boolean resetId=false;
+boolean sceneChange=false;
 ArrayList<Integer> answerId2[]=new ArrayList[5];
 boolean[] judge;
+boolean fun2Finished=false;
 int l1=10;//方眼紙のマス目の点線の長さ
 int l2=8;//線の間の長さ（余白）
 int l3=3;//上より，デフォルトの値は２　l1とl2の値によって１～３が入る。
@@ -132,6 +140,11 @@ void setup() {
   NonoImage = loadImage("Nono.png");
   okImage = loadImage("ok.png");
   noImage = loadImage("niwaka.png");
+  bg_oldpaper = loadImage("paper_adventure.png");
+  mapBGImage=loadImage("mapBG.png");
+  akimoto=loadImage("akimoto.png");
+  kari=loadImage("kari00.png");
+  resultImage = loadImage("result.png");
   //各シーンのセットアップ
   titleSetup();
   selectLevelSetup();
@@ -146,6 +159,10 @@ void setup() {
   titleGif= new Gif (this, "titleA.gif");
   gif.play();
   titleGif.play();
+  //fun1 = new Gif (this, "akimotoka.gif");
+  fun2 = new Gif (this, "hontai.gif");
+  //fun1.play();
+  image(mapBGImage, 0, 0, width, height);  //背景を表示
   //setupQuestion();
   //map系
   clickCount=new int[5][16][20];
@@ -156,6 +173,8 @@ void setup() {
   connectToServer();
   qr = loadImage("toUploadpage_qr.png");
 }
+
+boolean fun2Started=false;
 
 void draw() {
   //シーン切り換え
@@ -172,25 +191,42 @@ void draw() {
     break;
   case 3:
     if (!fileLoad) {
-      fileLoad=true;
+      fileLoad = true;
       loadImage();
     }
-    if (fileLoad&&!isLoading) {
+    if (fileLoad&&!displayFin) {//画像が読み込まれているかつ、表示されていない画像が残っている場合
       drawQuestion();
     }
     if (displayFin) {
-      if (!showLoading) {
-        showLoading=true;
-        loadingStartTime=millis();
-      } else {
-        drawLoadingAnimation();
-        isLoading = true;
-        soundFlag = true;
-        if (millis() - loadingStartTime > 500) {
+      if (!showLoading) {//問題の表示が終わった時1度だけ実行される
+        showLoading = true;
+        loadingStartTime = millis();
+        fun2Finished = false;
+        fun2Started = false;
+      } else {//問題の表示が終わった後の処理
+        if (!gifStarted) {//gifがスタートしていない場合
+          gifStarted = true;
+          gifStartTime = millis();
+          fun2.jump(0);
+          fun2.play();
+        }
+        image(questionImage[MAX_SIZE-1],(width - 960) / 2, 0, 960, height);
+        image(fun2, 0, 0);
+        if (millis() - gifStartTime >= gifDuration - 1200) {
+          image(kari, 0, 0);
+        }
+        if (millis() - gifStartTime >= gifDuration) {//gifの再生時間が終わったら
+          fun2.stop();
+          scene = 4;
+          soundFlag = true;
           showLoading = false;
           fileLoad = false;
+          fun2Finished = true;
+          fun2Started = true;
+          gifStarted = false;
+          //isLoading=false;
+          displayFin = false;
           resultPictureNum = 0;
-          scene = 4;
           bgm.close();
           choiceFloorBGM();
           mapButton.show();
@@ -200,7 +236,6 @@ void draw() {
           f4ButtonHome.show();
           f5ButtonHome.show();
           floor = 3;
-          isLoading = false;
         }
       }
     }
@@ -227,6 +262,18 @@ void draw() {
   case 9:
     sceneQR();
     fileLoad = false;
+    break;
+  case 10:
+    correctscene();
+    break;
+  case 11:
+    incorrectscene();
+    break;
+  case 12:
+    sceneCountDown();
+    break;    
+  case 13:
+    doramroll();
     break;
   }
 }
